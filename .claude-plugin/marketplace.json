@@ -1,0 +1,11 @@
+{
+  "name": "touragent",
+  "owner": { "name": "Elyg" },
+  "plugins": [
+    {
+      "name": "touragent",
+      "source": "./",
+      "description": "Let Claude drive your Neovim in real time: code tours and live change walkthroughs."
+    }
+  ]
+}

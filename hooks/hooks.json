@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "nvim -l \"${CLAUDE_PLUGIN_ROOT}/hooks/snapshot.lua\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

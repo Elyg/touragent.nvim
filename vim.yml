@@ -1,0 +1,15 @@
+---
+base: lua51
+globals:
+  vim:
+    any: true
+  MiniTest:
+    any: true
+  arg:
+    any: true
+  io.stdout:
+    any: true
+  io.stderr:
+    any: true
+  io.stdin:
+    any: true

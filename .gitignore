@@ -1,0 +1,10 @@
+.direnv/
+.venv/
+.sdk/
+result
+result-*
+build/
+.env*
+!.envrc
+.tests/
+*.log

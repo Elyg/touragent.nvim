@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test (nvim ${{ matrix.nvim }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        nvim: [stable, nightly]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Install nvim nightly
+        if: matrix.nvim == 'nightly'
+        id: nightly
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: nightly
+      - name: Test
+        env:
+          NIGHTLY_NVIM: ${{ steps.nightly.outputs.executable }}
+        run: |
+          nix develop -c bash -euo pipefail -c '
+            if [ -n "${NIGHTLY_NVIM:-}" ]; then export PATH="$(dirname "$NIGHTLY_NVIM"):$PATH"; fi
+            nvim --version | head -1
+            just test
+          '
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix develop -c just lint

@@ -1,0 +1,15 @@
+{
+  "name": "touragent",
+  "description": "Let Claude drive your Neovim in real time: code tours and live change walkthroughs with line-anchored feedback.",
+  "author": { "name": "Elyg" },
+  "homepage": "https://github.com/Elyg/nvim-touragent",
+  "repository": "https://github.com/Elyg/nvim-touragent",
+  "license": "MIT",
+  "keywords": ["neovim", "nvim", "tour", "walkthrough", "code-review"],
+  "mcpServers": {
+    "touragent": {
+      "command": "nvim",
+      "args": ["-l", "${CLAUDE_PLUGIN_ROOT}/mcp/server.lua"]
+    }
+  }
+}
