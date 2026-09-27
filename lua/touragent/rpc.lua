@@ -56,7 +56,26 @@ local function status()
   }
 end
 
+--- Short self-description, so an agent choosing between several nvims can tell the user
+--- which is which. Read-only and cheap; works without a link.
+local function describe()
+  local follow = require('touragent.follow')
+  local win = follow.tour_win
+  if not (win and vim.api.nvim_win_is_valid(win)) then
+    win = vim.api.nvim_get_current_win()
+  end
+  local name = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win))
+  local s = timeline.state
+  return {
+    file = name ~= '' and timeline.relpath(name) or vim.NIL,
+    tour = #s.steps > 0 and { title = s.title or vim.NIL, mode = s.mode, cur = s.cur, total = #s.steps }
+      or vim.NIL,
+    linked_agent = session.link and (session.link.agent.name or 'agent') or vim.NIL,
+  }
+end
+
 local handlers = {
+  describe = describe,
   hello = function(p)
     return session.hello(p)
   end,
@@ -94,14 +113,15 @@ local handlers = {
 }
 
 -- Results that already carry the user's comments (or must not drain them).
-local no_piggyback = { hello = true, bye = true, wait = true, cancel = true, get_feedback = true }
+local no_piggyback =
+  { hello = true, bye = true, wait = true, cancel = true, get_feedback = true, describe = true }
 
 ---@param method string
 ---@param params table|nil
 ---@param token string|nil
 function M.dispatch(method, params, token)
   local h = handlers[method]
-  if method ~= 'bye' and method ~= 'cancel' then
+  if method ~= 'bye' and method ~= 'cancel' and method ~= 'describe' then
     session.touch()
   end
   if not h then

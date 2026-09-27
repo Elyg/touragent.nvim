@@ -10,6 +10,7 @@ Workflows:
 - Code tour (explaining code / "how does X work"): timeline_new(mode="tour"), then timeline_push steps that walk the real control flow (use the lsp tool: definition, references, incoming_calls/outgoing_calls to follow calls accurately). One idea per step, range = the lines that matter, note = markdown explanation (why, not just what). You may push a few steps with wait=false to stay ahead, but end each batch with wait=true.
 - Change walkthrough (while editing code, or reviewing uncommitted changes): timeline_new(mode="changes"). After EACH edit lands, push exactly one kind="change" step for that file with wait=true, explaining what changed and why. The editor shows the diff inline. Do not start the next edit until the call returns, so the user's feedback applies before you build on it.
 
+Linking: the server links to the user's nvim on its own. If a tool reports that linking is ambiguous, do not guess: ask the user which nvim to use, offering each candidate's description (where it was opened, tmux window, current file, open tour), then call link_session(pid).
 Results of blocking calls: action="next" → continue; action="comment" → read `comments` (each has file, range, selected_text, text): answer questions with reply(comment_id, markdown) (it renders in the user's panel) or apply requested changes, then continue; comments with btw=true are side questions not tied to code (no file/range): answer them with reply and carry on exactly where the tour was; action="next" while current_step < steps_total means the user asked for more steps early (they keep reading), so push the next steps; action="stop" → stop the tour/walkthrough and summarise; action="timeout" → call timeline_wait to keep waiting.
 Every tool result may carry pending_user_messages: comments the user left while you were busy — handle them before continuing.
 When the user asks you (in chat) about what they are looking at, call status first: it returns their current file, cursor, visible lines and last visual selection.
@@ -52,7 +53,7 @@ M.list = {
   },
   {
     name = 'list_sessions',
-    description = 'List nvim instances running touragent (pid, cwd, git root, tmux location, match score). Use when linking is ambiguous or failed, then call link_session.',
+    description = 'List nvim instances running touragent, best match first. Each has a human `description` (where it was opened, tmux window, file being edited, open tour, start time), match_score and orphaned. Use when linking is ambiguous or failed. If more than one could be right, ask the user which one using the descriptions (not bare pids), then call link_session.',
     inputSchema = obj(),
     handler = function()
       return { sessions = link.sessions(), linked_pid = link.linked() and link.target.pid or vim.NIL }

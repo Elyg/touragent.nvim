@@ -196,7 +196,7 @@ end
 local function hint_rows()
   local k = config.options.panel_keys or {}
   local groups = {
-    { { k.next, 'next' }, { k.prev, 'prev' }, { k.go, 'jump' }, { k.stop, 'stop' } },
+    { { k.next, 'next' }, { k.prev, 'prev' }, { k.go, 'jump to code' }, { k.stop, 'stop' } },
     { { k.comment, 'comment' }, { k.btw, 'btw' }, { k.wake, 'wake agent' } },
   }
   local rows = {}
@@ -262,7 +262,12 @@ local function timeline_rows()
     if st.conflict then
       parts[#parts + 1] = { ' ⚠', 'TourAgentWarn' }
     end
-    rows[#rows + 1] = row(parts)
+    local r = row(parts)
+    if i == s.cur then
+      -- full-width band so "you are here" stands out from the headings
+      r.hls[#r.hls + 1] = { 0, -1, 'TourAgentCurrentLine' }
+    end
+    rows[#rows + 1] = r
   end
   local waiting_row = row({ { '  … waiting for more steps', 'TourAgentMuted' } })
   if total > max then

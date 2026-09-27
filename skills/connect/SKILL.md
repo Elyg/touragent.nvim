@@ -5,21 +5,28 @@ description: Connect (link) this agent to the user's running Neovim via the tour
 
 # Connect to the user's Neovim
 
-touragent normally links on its own (and re-links within a few seconds when nvim starts or
-restarts). Use this when that didn't happen, or when the user wants a different nvim.
+touragent normally links on its own: at startup, again within a few seconds when nvim
+starts or restarts, and it moves to a better-matching nvim when one appears. Use this when
+that didn't happen, when it picked the wrong one, or when the user wants a different nvim.
 
 ## Procedure
 
-1. Call `list_sessions`. Each entry has `pid`, `cwd`, `git_root`, `tmux` (session, window,
-   pane), `match_score` (higher = better match for this agent's project and tmux window) and
-   `linked`.
-2. Choose the target:
-   - If the user named one (pid, project, "the one in window 3"), use it.
-   - Otherwise take the highest `match_score`. Prefer the same tmux window as the agent.
-   - If two or more are tied and nothing distinguishes them, ask the user which one
-     (show pid, cwd and tmux window for each) instead of guessing.
-   - No sessions at all → nvim isn't running the plugin: suggest opening nvim in the
-     project (or `:checkhealth touragent`), and stop.
+1. Call `list_sessions`. Entries come best match first. Each has:
+   - `description`: a line the user will recognise, e.g. *opened in ~/gits/app · tmux
+     main:3 "code", pane %14 · editing src/router.ts · tour "Routing" at step 2/5 ·
+     started Sat 21:40*;
+   - `match_score` (higher = same project, same tmux window as you), `orphaned` (its tmux
+     pane is gone: almost certainly a leftover, not what the user is looking at), `linked`.
+2. Choose:
+   - The user named one ("the one in window 3", "the one with the router tour",
+     "~/gits/app") → match it against the descriptions.
+   - Exactly one non-orphaned entry, or one with a clearly higher `match_score` → take it.
+   - **Otherwise ask the user** (AskUserQuestion when available) with one option per
+     candidate: the label from its description's distinctive parts (folder, tmux window,
+     current file or tour), the full description as the option's detail. Never make the
+     user choose by pid alone.
+   - No sessions → nvim isn't running the plugin: suggest opening nvim in the project (or
+     `:checkhealth touragent`) and stop.
 3. Call `link_session(pid)`.
-4. Confirm in one line: which nvim (pid, project, tmux pane). If a tour is open there,
-   `status` shows its title and position; offer to continue it.
+4. Confirm in one line which nvim you linked (its description). If a tour is open there,
+   offer to continue it.

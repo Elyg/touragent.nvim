@@ -254,10 +254,19 @@ function M.run()
     RELINK_MS,
     RELINK_MS,
     vim.schedule_wrap(function()
-      if M.client and not link.linked() then
+      if not M.client then
+        return
+      end
+      if not link.linked() then
         local ok, linked = pcall(link.ensure)
         if ok and linked then
           log('auto-linked', link.target and link.target.pid)
+        end
+      elseif next(pending) == nil then
+        -- nothing is waiting on the user: safe to move to a better-matching nvim
+        local ok, switched = pcall(link.upgrade)
+        if ok and switched then
+          log('moved link to', link.target and link.target.pid)
         end
       end
     end)

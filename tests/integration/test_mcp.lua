@@ -58,6 +58,29 @@ T['server links on its own to an nvim that starts later'] = function()
   eq(child.lua_get([[require('touragent.session').link.agent.name]]), 'test-agent')
 end
 
+T['two equally good nvims: the server asks instead of guessing'] = function()
+  local other = H.child(runtime) -- a second nvim in the same project
+  srv = H.server(child, runtime, { TOURAGENT_NVIM = '' })
+  local ok, err = pcall(function()
+    local _, msg = srv.tool('status')
+    eq(msg:find('ambiguous', 1, true) ~= nil, true)
+    eq(msg:find('ask the user', 1, true) ~= nil, true)
+    eq(msg:find('opened in', 1, true) ~= nil, true)
+    local sessions = srv.tool('list_sessions').sessions
+    eq(#sessions, 2)
+    eq(sessions[1].description:find('opened in', 1, true) ~= nil, true)
+    -- the user picked the second nvim
+    local pid = other.lua_get('vim.uv.os_getpid()')
+    eq(srv.tool('link_session', { pid = pid }).ok, true)
+    eq(other.lua_get([[require('touragent.session').link.agent.name]]), 'test-agent')
+    eq(child.lua_get([[require('touragent.session').link]]), vim.NIL)
+  end)
+  other.stop()
+  if not ok then
+    error(err, 0)
+  end
+end
+
 T['timeline_push(wait) blocks until the user presses next'] = function()
   srv = H.server(child, runtime)
   srv.tool('timeline_new', { title = 'T', mode = 'tour' })

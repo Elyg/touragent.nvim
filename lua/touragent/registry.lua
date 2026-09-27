@@ -30,20 +30,45 @@ function M.pid_alive(pid)
   return uv.kill(pid, 0) == 0
 end
 
---- Current tmux location of a pane: { pane, session, window }.
+M.started_at = os.time()
+
+--- Current tmux location of a pane: { pane, session, window, window_index, window_name }.
 ---@param pane string|nil
 function M.tmux_info(pane)
   pane = pane or vim.env.TMUX_PANE
   if not pane or pane == '' or not vim.env.TMUX then
     return nil
   end
-  local res =
-    vim.system({ 'tmux', 'display-message', '-p', '-t', pane, '#{session_name}\t#{window_id}' }):wait()
+  local fmt = '#{session_name}\t#{window_id}\t#{window_index}\t#{window_name}'
+  local res = vim.system({ 'tmux', 'display-message', '-p', '-t', pane, fmt }):wait()
   if res.code ~= 0 then
     return { pane = pane }
   end
-  local session, window = vim.trim(res.stdout):match('^(.-)\t(.*)$')
-  return { pane = pane, session = session, window = window }
+  local session, window, index, name = vim.trim(res.stdout):match('^(.-)\t(.-)\t(.-)\t(.*)$')
+  return {
+    pane = pane,
+    session = session,
+    window = window,
+    window_index = tonumber(index),
+    window_name = name,
+  }
+end
+
+--- Set of pane ids that currently exist, or nil when tmux can't be asked.
+---@return table<string, true>|nil
+function M.live_panes()
+  if not vim.env.TMUX or vim.fn.executable('tmux') == 0 then
+    return nil
+  end
+  local res = vim.system({ 'tmux', 'list-panes', '-a', '-F', '#{pane_id}' }, { text = true }):wait()
+  if res.code ~= 0 then
+    return nil
+  end
+  local set = {}
+  for id in res.stdout:gmatch('%S+') do
+    set[id] = true
+  end
+  return set
 end
 
 --- Registry entry for this nvim.
@@ -56,6 +81,7 @@ function M.entry()
     git_root = M.git_root(cwd),
     tmux = M.tmux_info(),
     protocol = require('touragent.version').PROTOCOL_VERSION,
+    started_at = M.started_at,
   }
 end
 

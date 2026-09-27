@@ -172,7 +172,7 @@ T['btw & wake']['timeline and key hints are pre-styled rows'] = function()
   local text = child.lua_get([[vim.api.nvim_buf_get_lines(require('touragent.ui.panel').buf, 0, -1, false)]])
   eq(vim.tbl_contains(text, '▶ 1. one'), true)
   eq(vim.tbl_contains(text, '· 2. two'), true)
-  eq(vim.tbl_contains(text, 'n next · p prev · Enter jump · q stop'), true)
+  eq(vim.tbl_contains(text, 'n next · p prev · Enter jump to code · q stop'), true)
   eq(vim.tbl_contains(text, 'c comment · b btw · w wake agent'), true)
 end
 
