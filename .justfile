@@ -1,4 +1,4 @@
-# nvim-touragent — command interface. Run `just` to list recipes.
+# touragent.nvim — command interface. Run `just` to list recipes.
 
 default:
     @just --list

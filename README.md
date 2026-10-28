@@ -1,4 +1,4 @@
-# nvim-touragent
+# touragent.nvim
 
 Let Claude Code, or any agent that speaks MCP, drive your Neovim in real time. The agent
 **gives you code tours**: it jumps through the code and explains it step by step in a side
@@ -89,14 +89,14 @@ With `vim.pack` (Neovim 0.12):
 ```lua
 vim.pack.add({
   -- pin to 0.1.x releases (git tags); drop `version` to track main
-  { src = 'https://github.com/Elyg/nvim-touragent', version = vim.version.range('0.1') },
+  { src = 'https://github.com/Elyg/touragent.nvim', version = vim.version.range('0.1') },
 })
 -- optional: the defaults work without it
 require('touragent').setup({})
 ```
 
 `:lua vim.pack.update()` moves to the newest tag in the range. For a private fork, use the
-SSH URL (`src = 'git@github.com:Elyg/nvim-touragent'`) so git uses your key.
+SSH URL (`src = 'git@github.com:Elyg/touragent.nvim'`) so git uses your key.
 
 ### 2. Claude Code plugin
 
@@ -105,7 +105,7 @@ snapshot hook and the `/touragent:tour`, `/touragent:walkthrough` and `/touragen
 skills:
 
 ```
-/plugin marketplace add Elyg/nvim-touragent
+/plugin marketplace add Elyg/touragent.nvim
 /plugin install touragent@touragent
 ```
 
@@ -114,7 +114,7 @@ Update later with `/plugin marketplace update touragent`, then `/reload-plugins`
 To register only the MCP server, without the skills or the hook:
 
 ```sh
-claude mcp add touragent -- nvim -l /path/to/nvim-touragent/mcp/server.lua
+claude mcp add touragent -- nvim -l /path/to/touragent.nvim/mcp/server.lua
 ```
 
 ### opencode
@@ -126,7 +126,7 @@ In `opencode.json`:
   "mcp": {
     "touragent": {
       "type": "local",
-      "command": ["nvim", "-l", "/path/to/nvim-touragent/mcp/server.lua"],
+      "command": ["nvim", "-l", "/path/to/touragent.nvim/mcp/server.lua"],
       "enabled": true
     }
   }

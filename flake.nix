@@ -1,5 +1,5 @@
 {
-  description = "nvim-touragent dev environment";
+  description = "touragent.nvim dev environment";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -29,7 +29,7 @@
           shellHook = ''
             # mini.test for the test suite (dev-only; the plugin itself has no deps)
             export TOURAGENT_MINI_PATH="${pkgs.vimPlugins.mini-nvim}"
-            echo "[nvim-touragent] Environment ready."
+            echo "[touragent.nvim] Environment ready."
           '';
         };
       }
